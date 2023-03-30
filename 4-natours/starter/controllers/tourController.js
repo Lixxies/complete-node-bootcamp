@@ -5,6 +5,27 @@ import notFound from "./notFound.js"
 const tours = JSON.parse(fs.readFileSync('./dev-data/data/tours-simple.json'))
 const notFoundObject = "tour"
 
+// MIDDLEWARES
+
+export function checkID(req, res, next) {
+    if (!tours[req.params.id]) {
+        return res.status(404).json(notFound(notFoundObject))
+    }
+    next()
+}
+
+export function checkBody(req, res, next) {
+    if (!req.body.name || !req.body.price) {
+        return res.status(400).json({
+            status: 'fail',
+            message: 'Missing name or price'
+        })
+    }
+    next()
+}
+
+// ROUTE HANDLERS
+
 export function getAllTours(req, res) {
     res.status(200).json({
         status: 'success',
@@ -19,16 +40,12 @@ export function getAllTours(req, res) {
 export function getTour(req, res) {
     const tour = tours[req.params.id]
 
-    if (!tour) {
-        res.status(404).json(notFound(notFoundObject))
-    } else {
-        res.status(200).json({
-            status: 'success',
-            data: {
-                tour
-            }
-        })
-    }
+    res.status(200).json({
+        status: 'success',
+        data: {
+            tour
+        }
+    })
 }
 
 export function postTour(req, res) {
@@ -49,27 +66,19 @@ export function postTour(req, res) {
 export function patchTour(req, res) {
     const tour = tours[req.params.id]
 
-    if (!tour) {
-        res.status(404).json(notFound(notFoundObject))
-    } else {
-        res.status(200).json({
-            status: 'success',
-            data: {
-                tour: 'Updated tour'
-            }
-        })
-    }
+    res.status(200).json({
+        status: 'success',
+        data: {
+            tour: 'Updated tour'
+        }
+    })
 }
 
 export function deleteTour(req, res) {
     const tour = tours[req.params.id]
 
-    if (!tour) {
-        res.status(404).json(notFound(notFoundObject))
-    } else {
-        res.status(204).json({
-            status: 'success',
-            data: null
-        })
-    }
+    res.status(204).json({
+        status: 'success',
+        data: null
+    })
 }

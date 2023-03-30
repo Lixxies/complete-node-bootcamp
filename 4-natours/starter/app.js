@@ -1,3 +1,6 @@
+import dotenv from "dotenv";
+dotenv.config({ path: './config.env' })
+
 import express from "express";
 import morgan from "morgan";
 
@@ -10,9 +13,11 @@ const toursRoute = `${route}tours/`
 const usersRoute = `${route}users/`
 
 // MIDDLEWARES
-app.use(express.json())
+if (process.env.NODE_ENV === 'development') {
+    app.use(morgan('dev'))
+}
 
-app.use(morgan('dev'))
+app.use(express.json())
 
 app.use((req, res, next) => {
     req.requestTime = new Date().toISOString()
