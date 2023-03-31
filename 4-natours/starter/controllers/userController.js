@@ -1,10 +1,3 @@
-import fs from 'fs'
-
-import notFound from "./notFound.js"
-
-const users = JSON.parse(fs.readFileSync('./dev-data/data/users.json'))
-const notFoundObject = "user"
-
 export function getAllUsers(req, res) {
     res.status(500).json({
         status: 'error',
