@@ -6,7 +6,8 @@
   "main": "app.js",
   "scripts": {
     "start": "nodemon server.js",
-    "start:prod": "set NODE_ENV=production & nodemon server.js"
+    "start:prod": "set NODE_ENV=production& nodemon server.js",
+    "debug": "ndb server.js"
   },
   "author": "Liza",
   "license": "ISC",
@@ -15,7 +16,9 @@
     "express": "^4.18.2",
     "mongoose": "^7.0.3",
     "morgan": "^1.10.0",
-    "slugify": "^1.6.6",
-    "validator": "^13.9.0"
+    "slugify": "^1.6.6"
+  },
+  "devDependencies": {
+    "ndb": "^1.1.5"
   }
 }

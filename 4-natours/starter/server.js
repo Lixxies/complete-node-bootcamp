@@ -1,4 +1,11 @@
 import mongoose from "mongoose";
+
+import appShutdown from "./utils/appShutdown.js";
+
+process.on('unhandledRejection', err => appShutdown(err))
+
+process.on('uncoughtException', err => appShutdown(err))
+
 import app from "./app.js";
 
 const port = process.env.PORT;
@@ -11,6 +18,6 @@ mongoose
     .then(con => console.log('DB connection successful!'))
 
 ////////////////////////////////////////
-app.listen(port, () => {
+const server = app.listen(port, () => {
     console.log(`App running on http://localhost:${port}`);
 })
