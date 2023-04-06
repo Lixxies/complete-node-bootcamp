@@ -1,12 +1,13 @@
 import express from 'express';
 
 import { aliasTopTours, getAllTours, getTour, postTour, patchTour, deleteTour, getTourStats, getMonthlyPlan } from '../controllers/tourController.js'
+import { protect } from '../controllers/authController.js'
 
 const router = express.Router()
 
 router
     .route('/')
-    .get(getAllTours)
+    .get(protect, getAllTours)
     .post(postTour)
 
 router
