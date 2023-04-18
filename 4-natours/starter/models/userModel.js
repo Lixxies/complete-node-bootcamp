@@ -3,6 +3,8 @@ import mongoose from "mongoose";
 import validator from "validator";
 import bcrypt from "bcryptjs";
 
+import dateNowFixed from "../utils/dateNowFixed.js";
+
 const userSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -28,7 +30,6 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Please provide a password'],
         trim: true,
-        maxlength: [40, 'A user password must have less or equal then 40 characters'],
         minlength: [10, 'A user password must have more or equal then 10 characters'],
         select: false
     },
@@ -78,7 +79,7 @@ userSchema.pre('save', async function(next) {
 userSchema.pre('save', function(next) {
     if (!this.isModified('password') || this.isNew) return next()
 
-    this.passwordChangedAt = Date.now() + 120 * 60 * 1000 - 1000
+    this.passwordChangedAt = dateNowFixed() - 1000
     next()
 })
 

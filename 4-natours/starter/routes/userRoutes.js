@@ -1,7 +1,7 @@
 import express from 'express';
 
 import { getAllUsers, getUser, postUser, patchUser, deleteUser, updateMe, deleteMe } from '../controllers/userController.js'
-import { signup, login, forgotPassword, resetPassword, updatePassword, protect } from '../controllers/authController.js'
+import { signup, login, forgotPassword, resetPassword, updatePassword, protect, restrictTo } from '../controllers/authController.js'
 
 const router = express.Router()
 
@@ -17,13 +17,13 @@ router.patch('/delete-me', protect, deleteMe)
 
 router
     .route('/')
-    .get(getAllUsers)
+    .get(protect, restrictTo('admin'), getAllUsers)
     .post(postUser)
 
 router
     .route('/:id')
-    .get(getUser)
-    .patch(patchUser)
-    .delete(deleteUser)
+    .get(protect, restrictTo('admin'), getUser)
+    .patch(protect, restrictTo('admin'), patchUser)
+    .delete(protect, restrictTo('admin'), deleteUser)
 
 export default router

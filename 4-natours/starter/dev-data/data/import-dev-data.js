@@ -5,20 +5,22 @@ import mongoose from "mongoose";
 import fs from "fs";
 
 import Tour from "../../models/tourModel.js";
+import Review from "../../models/reviewModel.js";
+import User from "../../models/userModel.js";
 
 const DB = process.env.DATABASE.replace('<PASSWORD>', process.env.DATABASE_PASSWORD);
 
-mongoose
+await mongoose
     .connect(DB, {
-        useNewUrlParser: true,
+        bufferCommands: false,
     })
     .then(con => console.log('DB connection successful!'))
 
-const tours = JSON.parse(fs.readFileSync('./dev-data/data/tours-simple.json', 'utf-8')) 
+const data = JSON.parse(fs.readFileSync('./dev-data/data/users.json', 'utf-8'))
 
 async function importData() {
     try {
-        await Tour.create(tours)
+        await User.create(data)
         console.log('Data successfully loaded!')
     }
     catch (err) {

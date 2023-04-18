@@ -1,24 +1,26 @@
 import User from '../models/userModel.js'
 import catchAsync from '../utils/catchAsync.js'
 import AppError from '../utils/appError.js'
+import { deleteOne, updateOne, getOne, getAll } from './handlerFactory.js'
+
+export const getAllUsers = getAll(User)
+export const getUser = getOne(User)
+
+export function postUser(req, res) {
+    res.status(500).json({
+        status: 'error',
+        message: 'This route is not defined. Please use /signup instead'
+    })
+}
+
+export const patchUser = updateOne(User)
+export const deleteUser = deleteOne(User)
 
 function filterBody(body, ...allowedFields) {
     const filteredBody = {}
     Object.keys(body).map(el => allowedFields.includes(el) ? filteredBody[el] = body[el] : null)
     return filteredBody
 }
-
-export const getAllUsers = catchAsync(async function (req, res, next) {
-    const users = await User.find()
-
-    res.status(200).json({
-        status: 'success',
-        results: users.length,
-        data: {
-            users
-        }
-    })
-})
 
 export const updateMe = catchAsync(async function (req, res, next) {
     if (req.body.password || req.body.passwordConfirm) {
@@ -45,31 +47,3 @@ export const deleteMe = catchAsync(async function (req, res, next) {
         data: null
     })
 })
-
-export function postUser(req, res) {
-    res.status(500).json({
-        status: 'error',
-        message: 'This route is not yet defined'
-    })
-}
-
-export function getUser(req, res) {
-    res.status(500).json({
-        status: 'error',
-        message: 'This route is not yet defined'
-    })
-}
-
-export function patchUser(req, res) {
-    res.status(500).json({
-        status: 'error',
-        message: 'This route is not yet defined'
-    })
-}
-
-export function deleteUser(req, res) {
-    res.status(500).json({
-        status: 'error',
-        message: 'This route is not yet defined'
-    })
-}
