@@ -20,7 +20,9 @@ const data = JSON.parse(fs.readFileSync('./dev-data/data/users.json', 'utf-8'))
 
 async function importData() {
     try {
-        await User.create(data)
+        await User.create(data, {
+            validateBeforeSave: false
+        })
         console.log('Data successfully loaded!')
     }
     catch (err) {

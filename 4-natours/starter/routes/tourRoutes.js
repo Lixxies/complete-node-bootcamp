@@ -1,6 +1,6 @@
 import express from 'express';
 
-import { aliasTopTours, getAllTours, getTour, postTour, patchTour, deleteTour, getTourStats, getMonthlyPlan } from '../controllers/tourController.js'
+import { aliasTopTours, getAllTours, getTour, postTour, patchTour, deleteTour, getTourStats, getMonthlyPlan, getToursWithin, getDistances } from '../controllers/tourController.js'
 import { protect, restrictTo } from '../controllers/authController.js'
 import reviewRouter from './reviewRoutes.js'
 
@@ -9,8 +9,16 @@ const router = express.Router()
 router.use('/:tourId/reviews', reviewRouter)
 
 router
+    .route('/tours-within/:distance/center/:latlng/unit/:unit')
+    .get(getToursWithin)
+
+router
+    .route('/distances/:latlng/unit/:unit')
+    .get(getDistances)
+
+router
     .route('/')
-    .get(protect, getAllTours)
+    .get(getAllTours)
     .post(protect, restrictTo('admin', 'lead-guide'), postTour)
 
 router
@@ -23,7 +31,7 @@ router
 
 router
     .route('/monthly-plan/:year')
-    .get(getMonthlyPlan)
+    .get(protect, restrictTo('admin', 'lead-guide', 'guide'), getMonthlyPlan)
 
 router
     .route('/:id')

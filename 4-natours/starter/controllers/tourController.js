@@ -1,5 +1,6 @@
 import Tour from '../models/tourModel.js'
 import catchAsync from '../utils/catchAsync.js'
+import AppError from '../utils/appError.js'
 import { createOne, deleteOne, updateOne, getOne, getAll } from './handlerFactory.js'
 
 // Middleware
@@ -88,6 +89,77 @@ export const getMonthlyPlan = catchAsync(async (req, res, next) => {
         status: 'success',
         data: {
             plan
+        }
+    })
+})
+
+// GEOSPACIAL QUERIES
+
+function invalidCoordinates(next) {
+    return next(new AppError('Please provide latitude and longitude in the format lat,lng.', 400))
+}
+
+export const getToursWithin = catchAsync(async function (req, res, next) {
+    const { distance, latlng, unit } = req.params
+    const [lat, lng] = latlng.split(',')
+
+    if (!lat || !lng) {
+        return invalidCoordinates(next)
+    }
+
+    const radius = unit === 'mi' ? distance / 3963.2 : distance / 6378.1
+
+    const tours = await Tour.find({
+        startLocation: {
+            $geoWithin: {
+                $centerSphere: [
+                    [lng, lat],
+                    radius
+                ]
+            }
+        }
+    })
+
+    res.status(200).json({
+        status: 'success',
+        results: tours.length,
+        data: {
+            tours
+        }
+    })
+})
+
+export const getDistances = catchAsync(async function (req, res, next) {
+    const { latlng, unit } = req.params
+    const [lat, lng] = latlng.split(',')
+
+    if (!lat || !lng) {
+        return invalidCoordinates(next)
+    }
+
+    const distances = await Tour.aggregate([
+        {
+            $geoNear: {
+                near: {
+                    type: 'Point',
+                    coordinates: [lng * 1, lat * 1]
+                },
+                distanceField: 'distance',
+                distanceMultiplier: unit === 'mi' ? 0.000621371 : 0.001
+            }
+        },
+        {
+            $project: {
+                distance: 1,
+                name: 1
+            }
+        }
+    ])
+
+    res.status(200).json({
+        status: 'success',
+        data: {
+            distances
         }
     })
 })

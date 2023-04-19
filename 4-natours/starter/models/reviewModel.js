@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+import Tour from "./tourModel.js";
 import dateNowFixed from "../utils/dateNowFixed.js";
 
 const reviewSchema = new mongoose.Schema({
@@ -39,6 +40,48 @@ reviewSchema.pre(/^find/, function (next) {
         select: 'name photo'
     })
     next()
+})
+
+reviewSchema.statics.calcAverageRatings = async function (tourId) {
+    const stats = await this.aggregate([
+        {
+            $match: { tourRef: tourId }
+        },
+        {
+            $group: {
+                _id: '$tourRef',
+                nRating: { $sum: 1 },
+                avgRating: { $avg: '$rating' }
+            }
+        }
+    ])
+
+    if (stats.length > 0) {
+        Tour.findByIdAndUpdate(tourId, {
+            ratingsQuantity: stats[0].nRating,
+            ratingsAverage: stats[0].avgRating
+        })
+    } else {
+        Tour.findByIdAndUpdate(tourId, {
+            ratingsQuantity: 0,
+            ratingsAverage: 4.5
+        })
+    }
+}
+
+reviewSchema.index({ tourRef: 1, userRef: 1 }, { unique: true })
+
+reviewSchema.post('save', function () {
+    this.constructor.calcAverageRatings(this.tourRef)
+})
+
+reviewSchema.pre(/^findOneAnd/, async function (next) {
+    this.r = await this.findOne()
+    next()
+})
+
+reviewSchema.post(/^findOneAnd/, async function () {
+    await this.r.constructor.calcAverageRatings(this.r.tourRef)
 })
 
 const Review = mongoose.model('Review', reviewSchema)

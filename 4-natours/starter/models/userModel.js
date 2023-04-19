@@ -41,7 +41,7 @@ const userSchema = new mongoose.Schema({
         minlength: [10, 'A user password confirmation must have more or equal then 10 characters'],
         validate: {
             // This only works on CREATE and SAVE!!!
-            validator: function(psw) {
+            validator: function (psw) {
                 return psw === this.password
             },
             message: 'Passwords are not the same!'
@@ -68,7 +68,7 @@ const userSchema = new mongoose.Schema({
     }
 })
 
-userSchema.pre('save', async function(next) {
+userSchema.pre('save', async function (next) {
     if (!this.isModified('password')) return next()
 
     this.password = await bcrypt.hash(this.password, 12)
@@ -76,32 +76,32 @@ userSchema.pre('save', async function(next) {
     next()
 })
 
-userSchema.pre('save', function(next) {
+userSchema.pre('save', function (next) {
     if (!this.isModified('password') || this.isNew) return next()
 
     this.passwordChangedAt = dateNowFixed() - 1000
     next()
 })
 
-userSchema.methods.correctPassword = async function(candidatePassword, userPassword) {
+userSchema.methods.correctPassword = async function (candidatePassword, userPassword) {
     return await bcrypt.compare(candidatePassword, userPassword)
 }
 
-userSchema.methods.changedPassword = function(JWTTimeStamp) {
+userSchema.methods.changedPassword = function (JWTTimeStamp) {
     if (this.passwordChangedAt) {
         const convertedTimeStamp = parseInt(this.passwordChangedAt.getTime() / 1000, 10)
-        return JWTTimeStamp < convertedTimeStamp 
+        return JWTTimeStamp < convertedTimeStamp
     }
 
     return false
 }
 
-userSchema.pre(/^find/, function(next) {
+userSchema.pre(/^find/, function (next) {
     this.find({ active: { $ne: false } })
     next()
 })
 
-userSchema.methods.createPasswordResetToken = function() {
+userSchema.methods.createPasswordResetToken = function () {
     const token = crypto.randomBytes(32).toString('hex')
     this.passwordResetToken = crypto.createHash('sha256').update(token).digest('hex')
     this.passwordResetTokenExpires = Date.now() + 130 * 60 * 1000

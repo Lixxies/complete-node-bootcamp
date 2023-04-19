@@ -1,6 +1,6 @@
 import express from 'express';
 
-import { getAllUsers, getUser, postUser, patchUser, deleteUser, updateMe, deleteMe } from '../controllers/userController.js'
+import { getAllUsers, getUser, postUser, patchUser, deleteUser, updateMe, deleteMe, getMe } from '../controllers/userController.js'
 import { signup, login, forgotPassword, resetPassword, updatePassword, protect, restrictTo } from '../controllers/authController.js'
 
 const router = express.Router()
@@ -10,20 +10,28 @@ router.post('/login', login)
 
 router.post('/forgot-password', forgotPassword)
 router.patch('/reset-password/:token', resetPassword)
-router.patch('/update-password', protect, updatePassword)
 
-router.patch('/update-me', protect, updateMe)
-router.patch('/delete-me', protect, deleteMe)
+// Protect all routes after this middleware
+
+router.use(protect) 
+
+router.patch('/update-password', updatePassword)
+
+router.get('/me', getMe, getUser)
+router.patch('/update-me', updateMe)
+router.patch('/delete-me', deleteMe)
+
+router.use(restrictTo('admin'))
 
 router
     .route('/')
-    .get(protect, restrictTo('admin'), getAllUsers)
+    .get(getAllUsers)
     .post(postUser)
 
 router
     .route('/:id')
-    .get(protect, restrictTo('admin'), getUser)
-    .patch(protect, restrictTo('admin'), patchUser)
-    .delete(protect, restrictTo('admin'), deleteUser)
+    .get(getUser)
+    .patch(patchUser)
+    .delete(deleteUser)
 
 export default router

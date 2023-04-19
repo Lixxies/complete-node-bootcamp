@@ -5,16 +5,13 @@ import { deleteOne, updateOne, getOne, getAll } from './handlerFactory.js'
 
 export const getAllUsers = getAll(User)
 export const getUser = getOne(User)
-
-export function postUser(req, res) {
-    res.status(500).json({
-        status: 'error',
-        message: 'This route is not defined. Please use /signup instead'
-    })
-}
-
 export const patchUser = updateOne(User)
 export const deleteUser = deleteOne(User)
+
+export function getMe(req, res, next) {
+    req.params.id = req.user.id
+    next()
+}
 
 function filterBody(body, ...allowedFields) {
     const filteredBody = {}
@@ -47,3 +44,10 @@ export const deleteMe = catchAsync(async function (req, res, next) {
         data: null
     })
 })
+
+export function postUser(req, res) {
+    res.status(500).json({
+        status: 'error',
+        message: 'This route is not defined. Please use /signup instead'
+    })
+}
