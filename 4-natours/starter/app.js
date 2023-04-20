@@ -16,6 +16,7 @@ import AppError from "./utils/appError.js";
 import globalErrorHandler from "./controllers/errorController.js";
 
 const app = express();
+
 const route = '/api/v1/'
 const toursRoute = `${route}tours/`
 const usersRoute = `${route}users/`
