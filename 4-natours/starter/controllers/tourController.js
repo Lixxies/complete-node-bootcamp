@@ -1,7 +1,61 @@
+import multer from 'multer'
+import sharp from 'sharp';
+
 import Tour from '../models/tourModel.js'
 import catchAsync from '../utils/catchAsync.js'
 import AppError from '../utils/appError.js'
 import { createOne, deleteOne, updateOne, getOne, getAll } from './handlerFactory.js'
+import dateNowFixed from '../utils/dateNowFixed.js';
+
+const multerStorage = multer.memoryStorage()
+
+const multerFilter = (req, file, callback) => {
+    if (file.mimetype.startsWith('image')) {
+        callback(null, true)
+    } else {
+        callback(new AppError('Not an image! Please upload only images.', 400), false)
+    }
+}
+
+const upload = multer({
+    storage: multerStorage,
+    fileFilter: multerFilter
+})
+
+export const uploadTourImages = upload.fields([
+    { name: 'imageCover', maxCount: 1 },
+    { name: 'images', maxCount: 3 }
+])
+
+export const resizeTourImages = catchAsync(async function (req, res, next) {
+    if (!req.files.imageCover && !req.files.images) {
+        return next()
+    }
+
+    req.body.imageCover = `tour-${req.params.id}-${dateNowFixed()}-cover.jpeg`
+
+    await sharp(req.files.imageCover[0].buffer)
+        .resize(2000, 1333)
+        .toFormat('jpeg')
+        .jpeg({ quality: 90 })
+        .toFile(`public/img/tours/${req.body.imageCover}`)
+
+    req.body.images = []
+
+    await Promise.all(req.files.images.map(async (image, ind) => {
+        const filename = `tour-${req.params.id}-${dateNowFixed()}-${ind + 1}.jpeg`
+
+        await sharp(file.buffer)
+            .resize(2000, 1333)
+            .toFormat('jpeg')
+            .jpeg({ quality: 90 })
+            .toFile(`public/img/tours/${filename}`)
+
+        req.body.images.push(filename)
+    }))
+
+    next()
+})
 
 // Middleware
 export function aliasTopTours(req, res, next) {

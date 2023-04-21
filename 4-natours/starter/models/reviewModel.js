@@ -29,10 +29,10 @@ const reviewSchema = new mongoose.Schema({
         required: [true, 'Review must belong to a user.']
     }
 },
-    {
-        toJSON: { virtuals: true },
-        toObject: { virtuals: true }
-    })
+{
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
+})
 
 reviewSchema.pre(/^find/, function (next) {
     this.populate({
