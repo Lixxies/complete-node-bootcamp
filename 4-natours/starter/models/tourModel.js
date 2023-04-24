@@ -160,12 +160,6 @@ tourSchema.pre(/^find/, function (next) {
 //     next()
 // })
 
-tourSchema.post(/^find/, function (docs, next) {
-    console.log()
-    console.log(`Query took ${dateNowFixed() - this.start} milliseconds`)
-    next()
-})
-
 const Tour = mongoose.model('Tour', tourSchema)
 
 export default Tour;

@@ -46,7 +46,7 @@ export const getCheckoutSession = catchAsync(async function (req, res, next) {
 })
 
 export const createBookingCheckout = catchAsync(async function(req, res, next) {
-    // This is only TEMPORARY, because it's UNSECURE: everyone can make bookings without paying
+    // Since the project is not deployed, this solution is only TEMPORARY, because it's UNSECURE: everyone can make bookings without paying
     const { tour, user, price} = req.query
 
     if (!tour || !user || !price) {

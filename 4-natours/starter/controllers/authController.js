@@ -11,15 +11,14 @@ function signToken(id) {
     return jwt.sign({ id: id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN })
 }
 
-function createSendToken(user, statusCode, res) {
+function createSendToken(user, statusCode, req, res) {
     const token = signToken(user._id)
     const date = Date.now() + 120 * 60 * 1000
     const cookieOptions = {
         expires: new Date(date + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000),
-        httpOnly: true
+        httpOnly: true,
+        secure: req.secure
     }
-
-    if (process.env.NODE_ENV === 'production') cookieOptions.secure = true
 
     res.cookie('jwt', token, cookieOptions)
 
@@ -46,7 +45,7 @@ export const signup = catchAsync(async function (req, res, next) {
     const url = `${req.protocol}://${req.get('host')}/me`
     await new Email(newUser, url).sendWelcome()
 
-    createSendToken(newUser, 201, res)
+    createSendToken(newUser, 201, req, res)
 })
 
 export const login = catchAsync(async function (req, res, next) {
@@ -62,7 +61,7 @@ export const login = catchAsync(async function (req, res, next) {
         return next(new AppError('Incorrect email or password', 401))
     }
 
-    createSendToken(user, 200, res)
+    createSendToken(user, 200, req, res)
 })
 
 export const protect = catchAsync(async function (req, res, next) {
@@ -151,7 +150,7 @@ export const resetPassword = catchAsync(async function (req, res, next) {
     user.passwordResetTokenExpires = undefined
     await user.save()
 
-    createSendToken(user, 200, res)
+    createSendToken(user, 200, req, res)
 })
 
 export const updatePassword = catchAsync(async function (req, res, next) {
@@ -165,5 +164,5 @@ export const updatePassword = catchAsync(async function (req, res, next) {
     user.passwordConfirm = req.body.newPassword
     await user.save()
 
-    createSendToken(user, 200, res)
+    createSendToken(user, 200, req, res)
 })

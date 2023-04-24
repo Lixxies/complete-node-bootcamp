@@ -8,6 +8,8 @@ import helmet from "helmet";
 import mongoSanitize from "express-mongo-sanitize";
 import xss from "xss-clean";
 import hpp from "hpp";
+import compression from "compression";
+import cors from "cors";
 
 import tourRouter from "./routes/tourRoutes.js";
 import userRouter from "./routes/userRoutes.js";
@@ -48,6 +50,12 @@ app.use(xss())
 app.use(hpp({
     whitelist: ['duration', 'ratingsAverage', 'ratingsQuantity', 'maxGroupSize', 'difficulty', 'price']
 }))
+
+app.use(compression())
+
+app.use(cors())
+
+app.options('*', cors())
 
 // ROUTES
 app.use(toursRoute, tourRouter)
